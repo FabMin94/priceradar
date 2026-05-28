@@ -11,14 +11,15 @@ from app.core.amazon import extract_asin, clean_amazon_url
 class ProductNotFoundError(Exception):
     pass
 
+
 class ProductAlreadyTrackedError(Exception):
     pass
 
 
 async def create_product(
-        db: AsyncSession,
-        data: ProductCreate,
-        user_id: str,
+    db: AsyncSession,
+    data: ProductCreate,
+    user_id: str,
 ) -> Product:
     asin = extract_asin(data.url)
 
@@ -27,12 +28,12 @@ async def create_product(
         select(Product).where(
             Product.user_id == UUID(user_id),
             Product.asin == asin,
-            Product.is_active == True,   # noqa: E712
+            Product.is_active == True,  # noqa: E712
         )
     )
     if result.scalar_one_or_none():
         raise ProductAlreadyTrackedError(f"You are already tracking ASIN {asin}")
-    
+
     product = Product(
         user_id=UUID(user_id),
         url=clean_amazon_url(asin),
@@ -47,12 +48,12 @@ async def create_product(
 
 
 async def get_user_products(
-        db: AsyncSession,
-        user_id: str,
+    db: AsyncSession,
+    user_id: str,
 ) -> list[Product]:
     result = await db.execute(
         select(Product)
-        .where(Product.user_id == UUID(user_id), Product.is_active == True)   # noqa: E712
+        .where(Product.user_id == UUID(user_id), Product.is_active == True)  # noqa: E712
         .order_by(desc(Product.created_at))
     )
     products = list(result.scalars().all())
@@ -67,14 +68,14 @@ async def get_user_products(
         )
         latest_record = latest.scalar_one_or_none()
         product.latest_price = latest_record.price if latest_record else None
-    
+
     return products
 
 
 async def get_product_detail(
-        db: AsyncSession,
-        product_id: UUID,
-        user_id: str,
+    db: AsyncSession,
+    product_id: UUID,
+    user_id: str,
 ) -> Product:
     result = await db.execute(
         select(Product)
@@ -88,7 +89,7 @@ async def get_product_detail(
 
     if not product:
         raise ProductNotFoundError(f"Product {product_id} not found")
-    
+
     # Attach latest price
     if product.price_history:
         product.latest_price = max(
@@ -101,21 +102,20 @@ async def get_product_detail(
 
 
 async def delete_product(
-        db: AsyncSession,
-        product_id: UUID,
-        user_id: str,
+    db: AsyncSession,
+    product_id: UUID,
+    user_id: str,
 ) -> None:
     result = await db.execute(
-        select(Product)
-        .where(
+        select(Product).where(
             Product.id == product_id,
             Product.user_id == UUID(user_id),
-        )        
+        )
     )
     product = result.scalar_one_or_none()
 
     if not product:
         raise ProductNotFoundError(f"Product {product_id} not found")
-    
+
     # Soft delete — keep the data, just mark inactive
     product.is_active = False

@@ -8,7 +8,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> str:
     """
     Validates the JWT token via Authkit.
@@ -18,9 +18,9 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing token",
-            headers={"WWW-Authenticate": "Bearer"},                
+            headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     try:
         user_id = await get_current_user_id(credentials.credentials)
         return user_id

@@ -18,7 +18,7 @@ def is_amazon_url(url: str) -> bool:
         return "amazon." in hostname
     except Exception:
         return False
-    
+
 
 def clean_amazon_url(asin: str) -> str:
     """Return a canonical Amazon URL from an ASIN."""

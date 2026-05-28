@@ -19,7 +19,7 @@ class ProductCreate(BaseModel):
         if not extract_asin(v):
             raise ValueError("Could not extract ASIN from URL")
         return v
-    
+
 
 class PriceHistoryResponse(BaseModel):
     id: UUID

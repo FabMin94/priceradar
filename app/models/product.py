@@ -21,7 +21,7 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     asin: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     alert_threshold: Mapped[float | None] = mapped_column(
-        Numeric(10, 2), 
+        Numeric(10, 2),
         nullable=True,
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -54,7 +54,7 @@ class PriceHistory(Base):
     price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), default="EUR")
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
-    scraped_at: Mapped[datetime]= mapped_column(
+    scraped_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 
@@ -74,7 +74,7 @@ class Alert(Base):
         index=True,
     )
     price_at_alert: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
-    threshold: Mapped[float] = mapped_column(Numeric(10,2), nullable=False)
+    threshold: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     triggered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

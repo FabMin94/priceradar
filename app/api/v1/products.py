@@ -29,7 +29,7 @@ async def add_product(
         return product
     except ProductAlreadyTrackedError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
+
 
 @router.get("", response_model=list[ProductSummary])
 async def list_products(
@@ -49,15 +49,15 @@ async def get_product(
         return await get_product_detail(db, product_id, user_id)
     except ProductNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    
+
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_product(
     product_id: UUID,
     db: AsyncSession = Depends(get_db),
-    user_id: str = Depends(get_current_user),    
+    user_id: str = Depends(get_current_user),
 ):
     try:
         await delete_product(db, product_id, user_id)
     except ProductNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
