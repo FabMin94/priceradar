@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from app.db.base import Base, engine
 from app.models import product # noqa: F401
+from app.api.v1.products import router as products_router
 
 
 @asynccontextmanager
@@ -19,6 +20,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(products_router, prefix="/api/v1")
 
 
 @app.get("/health")
