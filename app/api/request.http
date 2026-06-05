@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlQHVzZXIuY29tIiwiZXhwIjoxNzc5OTc0MzI0fQ.nD0MbhzTdio-xQbJjHs0sEjhnMo8pYt65Ey1h0VSAdQ
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlQHVzZXIuY29tIiwiZXhwIjoxNzgwNjU1ODA3fQ.y3NN96oanssQhC0AD0-L8aIkyL82hTaapuFhuJO-pic
 
 GET http://localhost:8001/health
 
@@ -32,4 +32,8 @@ Authorization: Bearer {{token}}
 
 ### Get a specific product
 GET http://localhost:8001/api/v1/products/65fc385a-18c1-4019-aee5-99edce6d232b
+Authorization: Bearer {{token}}
+
+### Trigger a manual scrape
+POST http://localhost:8001/api/v1/products/scrape HTTP/1.1
 Authorization: Bearer {{token}}

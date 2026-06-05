@@ -61,3 +61,15 @@ async def remove_product(
         await delete_product(db, product_id, user_id)
     except ProductNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)
+async def trigger_scrape(
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_current_user),
+):
+    """Manually trigger a price scrape for all your products."""
+    from app.services.scraper_service import scrape_all_products
+
+    await scrape_all_products(db)
+    return {"message": "Scrape triggered"}
