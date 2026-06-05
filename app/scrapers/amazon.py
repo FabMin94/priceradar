@@ -106,5 +106,13 @@ async def scrape_amazon_product(asin: str) -> ScrapeResult:
 
         price, currency = parse_price(raw_price)
 
+        return ScrapeResult(
+            asin=asin,
+            price=price,
+            currency=currency,
+            is_available=price is not None,
+            raw_price=raw_price,
+        )
+
     except httpx.RequestError:
         return failed_scrape
