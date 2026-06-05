@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlQHVzZXIuY29tIiwiZXhwIjoxNzgwNjU1ODA3fQ.y3NN96oanssQhC0AD0-L8aIkyL82hTaapuFhuJO-pic
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlQHVzZXIuY29tIiwiZXhwIjoxNzgwNjY5MDkyfQ.3HInqlqiH5egXDbC7vZhGUgElWVilCamA9vTrd0PpJ0
 
 GET http://localhost:8001/health
 
@@ -37,3 +37,16 @@ Authorization: Bearer {{token}}
 ### Trigger a manual scrape
 POST http://localhost:8001/api/v1/products/scrape HTTP/1.1
 Authorization: Bearer {{token}}
+
+### List all alerts
+GET  http://localhost:8001/api/v1/alerts HTTP/1.1
+Authorization: Bearer {{token}}
+
+### List unread only
+GET  http://localhost:8001/api/v1/alerts?unread_only=true HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Mark as read
+PATCH http://localhost:8001/api/v1/alerts/a087cc3d-1759-4825-a4d6-f4390f464542/read HTTP/1.1
+Authorization: Bearer {{token}}
+# Try "list unread only" again - should be empty if you marked everything as read
