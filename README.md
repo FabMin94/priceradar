@@ -31,12 +31,12 @@ Client (JWT token from AuthKit)
     └── alerts
            ▲
            │
-┌──────────────────────┐
+┌───────────────────────┐
 │  Background Scheduler │
 │  Every 6 hours:       │
 │  scrape → store →     │
 │  alert if threshold   │
-└──────────────────────┘
+└───────────────────────┘
 ```
 
 ---
