@@ -21,7 +21,7 @@ async def get_current_user_id(token: str) -> str:
                 timeout=5.0,
             )
     except httpx.RequestError as e:
-        raise AuthKitError(f"Authkit is unreachable: {e}")
+        raise AuthKitError(f"Authkit is unreachable: {e}") from e
 
     if response.status_code == 401:
         raise AuthKitError("Invalid or expired token")

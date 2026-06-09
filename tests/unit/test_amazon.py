@@ -1,4 +1,4 @@
-from app.core.amazon import extract_asin, is_amazon_url, clean_amazon_url
+from app.core.amazon import clean_amazon_url, extract_asin, is_amazon_url
 
 
 def test_extract_asin_dp():

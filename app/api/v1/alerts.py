@@ -1,14 +1,15 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.schemas.alert import AlertResponse
 from app.services.alert_service import (
+    AlertNotFoundError,
     get_user_alerts,
     mark_alert_read,
-    AlertNotFoundError,
 )
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -32,4 +33,4 @@ async def read_alert(
     try:
         return await mark_alert_read(db, alert_id, user_id)
     except AlertNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

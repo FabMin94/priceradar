@@ -16,5 +16,19 @@ services:
       timeout: 5s
       retries: 5
 
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://priceradar:priceradar_pass@db:5432/priceradar_db
+      AUTHKIT_URL: http://host.docker.internal:8000
+    depends_on:
+      db:
+        condition: service_healthy    
+
 volumes:
   postgres_data:

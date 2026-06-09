@@ -1,9 +1,9 @@
 import logging
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.product import Product, PriceHistory, Alert
+from app.models.product import Alert, PriceHistory, Product
 from app.scrapers.amazon import scrape_amazon_product
 
 logger = logging.getLogger(__name__)

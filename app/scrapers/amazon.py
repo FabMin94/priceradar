@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 import httpx
 from bs4 import BeautifulSoup
-from dataclasses import dataclass
 
 
 @dataclass

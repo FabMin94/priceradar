@@ -1,6 +1,6 @@
-import pytest
+from unittest.mock import AsyncMock, patch
+
 from httpx import AsyncClient
-from unittest.mock import patch, AsyncMock
 
 from app.scrapers.amazon import ScrapeResult
 
@@ -35,8 +35,8 @@ async def test_add_product_invalid_url(client: AsyncClient, mock_auth: str):
 
 async def test_add_product_duplicate(client: AsyncClient, mock_auth: str):
     payload = {
-            "url": "https://www.amazon.it/dp/B0CHXMJRP3",
-            "name": "Test Product",
+        "url": "https://www.amazon.it/dp/B0CHXMJRP3",
+        "name": "Test Product",
     }
     await client.post(
         "/api/v1/products",
@@ -115,7 +115,7 @@ async def test_manual_scrape_trigger(client: AsyncClient, mock_auth: str):
                 "alert_threshold": 99.99,
             },
             headers={"Authorization": "Bearer faketoken"},
-        )       
+        )
 
         # Trigger scrape
         response = await client.post(

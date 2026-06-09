@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,12 +7,12 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.schemas.product import ProductCreate, ProductResponse, ProductSummary
 from app.services.product_service import (
-    create_product,
-    get_user_products,
-    get_product_detail,
-    delete_product,
-    ProductNotFoundError,
     ProductAlreadyTrackedError,
+    ProductNotFoundError,
+    create_product,
+    delete_product,
+    get_product_detail,
+    get_user_products,
 )
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -28,7 +29,7 @@ async def add_product(
         product.latest_price = None
         return product
     except ProductAlreadyTrackedError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @router.get("", response_model=list[ProductSummary])
@@ -48,7 +49,7 @@ async def get_product(
     try:
         return await get_product_detail(db, product_id, user_id)
     except ProductNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -60,7 +61,7 @@ async def remove_product(
     try:
         await delete_product(db, product_id, user_id)
     except ProductNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)

@@ -1,7 +1,6 @@
 import re
 from urllib.parse import urlparse
 
-
 ASIN_PATTERN = re.compile(r"/(?:dp|gp/product)/([A-Z0-9]{10})")
 
 

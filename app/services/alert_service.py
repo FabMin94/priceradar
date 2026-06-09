@@ -1,6 +1,7 @@
 from uuid import UUID
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.product import Alert, Product
@@ -11,9 +12,9 @@ class AlertNotFoundError(Exception):
 
 
 async def get_user_alerts(
-        db: AsyncSession,
-        user_id: str,
-        unread_only: bool = False,
+    db: AsyncSession,
+    user_id: str,
+    unread_only: bool = False,
 ) -> list[Alert]:
     """Get all alerts for products owned by user."""
     query = (
@@ -25,22 +26,22 @@ async def get_user_alerts(
     )
 
     if unread_only:
-        query = query.where(Alert.is_read == False)   # noqa: E712
-    
+        query = query.where(Alert.is_read == False)  # noqa: E712
+
     result = await db.execute(query)
     alerts = list(result.scalars().all())
 
     # Attach product name for convenience
     for alert in alerts:
         alert.product_name = alert.product.name if alert.product else None
-    
+
     return alerts
 
 
 async def mark_alert_read(
-        db: AsyncSession,
-        alert_id: UUID,
-        user_id: str,
+    db: AsyncSession,
+    alert_id: UUID,
+    user_id: str,
 ) -> Alert:
     """Mark a single alert as read."""
     result = await db.execute(
@@ -55,7 +56,7 @@ async def mark_alert_read(
 
     if not alert:
         raise AlertNotFoundError(f"Alert {alert_id} not found")
-    
+
     alert.is_read = True
     await db.flush()
     return alert

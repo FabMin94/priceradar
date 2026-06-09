@@ -1,7 +1,8 @@
-from pydantic import BaseModel, HttpUrl, field_validator
-from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
+from uuid import UUID
+
+from pydantic import BaseModel, field_validator
 
 from app.core.amazon import extract_asin, is_amazon_url
 

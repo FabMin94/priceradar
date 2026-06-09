@@ -1,11 +1,12 @@
 from uuid import UUID
+
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 
-from app.models.product import Product, PriceHistory
+from app.core.amazon import clean_amazon_url, extract_asin
+from app.models.product import PriceHistory, Product
 from app.schemas.product import ProductCreate
-from app.core.amazon import extract_asin, clean_amazon_url
 
 
 class ProductNotFoundError(Exception):

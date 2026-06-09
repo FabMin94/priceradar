@@ -1,5 +1,6 @@
+from unittest.mock import AsyncMock, patch
+
 from httpx import AsyncClient
-from unittest.mock import patch, AsyncMock
 
 from app.scrapers.amazon import ScrapeResult
 
@@ -36,12 +37,12 @@ async def _setup_alert(client: AsyncClient) -> dict:
     response = await client.get(
         "/api/v1/alerts",
         headers={"Authorization": "Bearer faketoken"},
-    )       
+    )
     return response.json()[0]
 
 
 async def test_alert_triggered_when_price_below_threshold(
-        client: AsyncClient, mock_auth: str
+    client: AsyncClient, mock_auth: str
 ):
     alert = await _setup_alert(client)
     assert float(alert["price_at_alert"]) == 79.99
@@ -50,7 +51,7 @@ async def test_alert_triggered_when_price_below_threshold(
 
 
 async def test_list_alerts_unread_only(client: AsyncClient, mock_auth: str):
-    alert = await _setup_alert(client)
+    await _setup_alert(client)
 
     response = await client.get(
         "/api/v1/alerts?unread_only=true",

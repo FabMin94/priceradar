@@ -1,8 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.auth_client import get_current_user_id, AuthKitError
-
+from app.core.auth_client import AuthKitError, get_current_user_id
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -29,4 +28,4 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e

@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.v1.alerts import router as alerts_router
+from app.api.v1.products import router as products_router
+from app.core.scheduler import scheduler, setup_scheduler
 from app.db.base import Base, engine
 from app.models import product  # noqa: F401
-from app.api.v1.products import router as products_router
-from app.api.v1.alerts import router as alerts_router
-from app.core.scheduler import scheduler, setup_scheduler
 
 logging.basicConfig(level=logging.INFO)
 

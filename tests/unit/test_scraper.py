@@ -1,5 +1,5 @@
-from app.scrapers.amazon import parse_price
 from app.core.amazon import extract_asin
+from app.scrapers.amazon import parse_price
 
 
 def test_parse_price_euros():
