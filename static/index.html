@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PriceRadar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    header {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    header h1 span { color: #f59e0b; }
+
+    #auth-status {
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    #auth-status.logged-in { color: #6ee7b7; }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* Login card */
+    .card {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1;
+      min-width: 160px;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #f59e0b; }
+
+    button {
+      background: #f59e0b;
+      color: #0f1117;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #d97706; }
+    button.secondary {
+      background: #1e2130;
+      color: #94a3b8;
+      border: 1px solid #2d3148;
+      font-weight: 600;
+    }
+    button.secondary:hover { background: #2d3148; color: #e2e8f0; }
+    button.danger {
+      background: transparent;
+      color: #f87171;
+      border: 1px solid #7f1d1d;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
+    button.danger:hover { background: #7f1d1d; }
+
+    /* Products table */
+    .products-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .product-row {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .product-info { flex: 1; min-width: 200px; }
+    .product-name { font-weight: 600; font-size: 0.95rem; }
+    .product-asin { font-size: 0.75rem; color: #64748b; margin-top: 0.2rem; }
+
+    .product-price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #6ee7b7;
+      min-width: 100px;
+      text-align: right;
+    }
+
+    .product-price.no-price { color: #64748b; font-size: 0.9rem; }
+
+    .product-threshold {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-align: right;
+    }
+
+    .product-actions { display: flex; gap: 0.5rem; }
+
+    /* Alerts */
+    .alert-row {
+      background: #0f1117;
+      border: 1px solid #92400e;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .alert-row.read { border-color: #2d3148; opacity: 0.6; }
+
+    .alert-info { flex: 1; }
+    .alert-product { font-weight: 600; font-size: 0.9rem; }
+    .alert-detail { font-size: 0.8rem; color: #fbbf24; margin-top: 0.2rem; }
+    .alert-row.read .alert-detail { color: #64748b; }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 2rem;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #toast.show { opacity: 1; }
+    #toast.success { border-color: #065f46; color: #6ee7b7; }
+    #toast.error { border-color: #7f1d1d; color: #f87171; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: #64748b;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #1e2130;
+      border-color: #2d3148;
+      color: #e2e8f0;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    #login-section { display: block; }
+    #app-section { display: none; }
+
+    .badge {
+      display: inline-block;
+      background: #92400e;
+      color: #fbbf24;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Price<span>Radar</span></h1>
+  <div id="auth-status">Not logged in</div>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN SECTION -->
+  <div id="login-section">
+    <div class="card">
+      <h2>Connect to AuthKit</h2>
+      <div class="form-row">
+        <input id="authkit-url" type="text" value="http://localhost:8000" placeholder="AuthKit URL" />
+      </div>
+      <div class="form-row" style="margin-top:0.75rem">
+        <input id="login-email" type="email" placeholder="email" autocomplete="email" />
+        <input id="login-password" type="password" placeholder="password" autocomplete="current-password" />
+        <button onclick="login()">Login</button>
+        <button class="secondary" onclick="register()">Register</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SECTION -->
+  <div id="app-section">
+
+    <!-- Add product -->
+    <div class="card">
+      <h2>Track a new product</h2>
+      <div class="form-row">
+        <input id="product-url" type="text" placeholder="Amazon URL (e.g. https://amazon.com/dp/B0CHXMJRP3)" style="flex:3" />
+        <input id="product-name" type="text" placeholder="Name" style="flex:2" />
+        <input id="product-threshold" type="number" step="0.01" placeholder="Alert price (optional)" style="flex:1" />
+        <button onclick="addProduct()">Track</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('products')">
+        Products
+      </button>
+      <button class="tab" onclick="switchTab('alerts')" id="alerts-tab">
+        Alerts <span class="badge" id="unread-badge" style="display:none">0</span>
+      </button>
+    </div>
+
+    <!-- Products tab -->
+    <div class="tab-content active" id="tab-products">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <span style="font-size:0.85rem; color:#64748b" id="products-count"></span>
+        <button class="secondary" onclick="triggerScrape()" style="font-size:0.8rem; padding:0.4rem 0.8rem">
+          ↻ Scrape now
+        </button>
+      </div>
+      <div class="products-grid" id="products-list">
+        <div class="empty">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Alerts tab -->
+    <div class="tab-content" id="tab-alerts">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <span style="font-size:0.85rem; color:#64748b" id="alerts-count"></span>
+        <label style="font-size:0.85rem; color:#94a3b8; display:flex; align-items:center; gap:0.5rem; cursor:pointer">
+          <input type="checkbox" id="unread-only" onchange="loadAlerts()" />
+          Unread only
+        </label>
+      </div>
+      <div id="alerts-list">
+        <div class="empty">Loading...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let token = null;
+  let authkitUrl = "http://localhost:8000";
+
+  // --- Auth ---
+
+  async function login() {
+    authkitUrl = document.getElementById("authkit-url").value.trim();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+      const res = await fetch(`${authkitUrl}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Login failed");
+
+      token = data.access_token;
+      onLoggedIn(email);
+      toast("Logged in successfully", "success");
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  async function register() {
+    authkitUrl = document.getElementById("authkit-url").value.trim();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+      const res = await fetch(`${authkitUrl}/api/v1/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Registration failed");
+      toast("Registered! You can now login.", "success");
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  function onLoggedIn(email) {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("app-section").style.display = "block";
+      const status = document.getElementById("auth-status");
+      status.className = "logged-in";
+      status.innerHTML = `${escHtml(email)} <button class="secondary" onclick="logout()" style="margin-left:0.5rem">Logout</button>`;
+      loadProducts();
+      loadAlerts();
+  }
+
+  function logout() {
+      token = null;
+      document.getElementById("login-section").style.display = "block";
+      document.getElementById("app-section").style.display = "none";
+      const status = document.getElementById("auth-status");
+      status.className = "";
+      status.textContent = "Not logged in";
+  }
+
+  // --- API helpers ---
+
+  async function api(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`/api/v1${path}`, opts);
+    return res;
+  }
+
+  // --- Products ---
+
+  async function loadProducts() {
+    try {
+      const res = await api("GET", "/products");
+      const products = await res.json();
+      renderProducts(products);
+    } catch (e) {
+      toast("Failed to load products", "error");
+    }
+  }
+
+  function renderProducts(products) {
+    const el = document.getElementById("products-list");
+    document.getElementById("products-count").textContent =
+      `${products.length} product${products.length !== 1 ? "s" : ""} tracked`;
+
+    if (products.length === 0) {
+      el.innerHTML = '<div class="empty">No products tracked yet. Add one above.</div>';
+      return;
+    }
+
+    el.innerHTML = products.map(p => `
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">${escHtml(p.name)}</div>
+          <div class="product-asin">ASIN: ${p.asin} · <a href="${p.url}" target="_blank" style="color:#6366f1">View on Amazon</a></div>
+        </div>
+        <div>
+          <div class="product-price ${p.latest_price ? '' : 'no-price'}">
+            ${p.latest_price ? `€ ${parseFloat(p.latest_price).toFixed(2)}` : 'No data yet'}
+          </div>
+          ${p.alert_threshold ? `<div class="product-threshold">Alert at € ${parseFloat(p.alert_threshold).toFixed(2)}</div>` : ''}
+        </div>
+        <div class="product-actions">
+          <button class="danger" onclick="deleteProduct('${p.id}')">Remove</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function addProduct() {
+    const url = document.getElementById("product-url").value.trim();
+    const name = document.getElementById("product-name").value.trim();
+    const threshold = document.getElementById("product-threshold").value.trim();
+
+    if (!url || !name) {
+      toast("URL and name are required", "error");
+      return;
+    }
+
+    try {
+      const body = { url, name };
+      if (threshold) body.alert_threshold = parseFloat(threshold);
+
+      const res = await api("POST", "/products", body);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to add product");
+
+      document.getElementById("product-url").value = "";
+      document.getElementById("product-name").value = "";
+      document.getElementById("product-threshold").value = "";
+
+      toast(`Tracking ${data.name}`, "success");
+      loadProducts();
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm("Stop tracking this product?")) return;
+    try {
+      const res = await api("DELETE", `/products/${id}`);
+      if (!res.ok) throw new Error("Failed to remove product");
+      toast("Product removed", "success");
+      loadProducts();
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  async function triggerScrape() {
+    try {
+      const res = await api("POST", "/products/scrape");
+      if (!res.ok) throw new Error("Scrape failed");
+      toast("Scrape triggered — prices updating...", "success");
+      setTimeout(loadProducts, 3000);
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  // --- Alerts ---
+
+  async function loadAlerts() {
+    const unreadOnly = document.getElementById("unread-only").checked;
+    try {
+      const res = await api("GET", `/alerts${unreadOnly ? "?unread_only=true" : ""}`);
+      const alerts = await res.json();
+      renderAlerts(alerts);
+
+      // Update unread badge
+      const unreadRes = await api("GET", "/alerts?unread_only=true");
+      const unread = await unreadRes.json();
+      const badge = document.getElementById("unread-badge");
+      if (unread.length > 0) {
+        badge.textContent = unread.length;
+        badge.style.display = "inline";
+      } else {
+        badge.style.display = "none";
+      }
+    } catch (e) {
+      toast("Failed to load alerts", "error");
+    }
+  }
+
+  function renderAlerts(alerts) {
+    const el = document.getElementById("alerts-list");
+    const unreadCount = alerts.filter(a => !a.is_read).length;
+    document.getElementById("alerts-count").textContent =
+      `${alerts.length} alert${alerts.length !== 1 ? "s" : ""}${unreadCount > 0 ? ` · ${unreadCount} unread` : ""}`;
+
+    if (alerts.length === 0) {
+      el.innerHTML = '<div class="empty">No alerts yet. Add a product with a threshold price.</div>';
+      return;
+    }
+
+    el.innerHTML = alerts.map(a => `
+      <div class="alert-row ${a.is_read ? 'read' : ''}">
+        <div class="alert-info">
+          <div class="alert-product">${escHtml(a.product_name || 'Unknown product')}</div>
+          <div class="alert-detail">
+            Price dropped to € ${parseFloat(a.price_at_alert).toFixed(2)}
+            (threshold: € ${parseFloat(a.threshold).toFixed(2)})
+            · ${new Date(a.triggered_at).toLocaleDateString()}
+          </div>
+        </div>
+        ${!a.is_read ? `<button class="secondary" onclick="markRead('${a.id}')" style="font-size:0.8rem; padding:0.4rem 0.8rem">Mark read</button>` : '<span style="font-size:0.75rem; color:#475569">Read</span>'}
+      </div>
+    `).join("");
+  }
+
+  async function markRead(id) {
+    try {
+      const res = await api("PATCH", `/alerts/${id}/read`);
+      if (!res.ok) throw new Error("Failed to mark as read");
+      loadAlerts();
+    } catch (e) {
+      toast(String(e), "error");
+    }
+  }
+
+  // --- Tabs ---
+
+  function switchTab(name) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add("active");
+    document.getElementById(`tab-${name}`).classList.add("active");
+    if (name === "alerts") loadAlerts();
+  }
+
+  // --- Utilities ---
+
+  function escHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  let toastTimeout;
+  function toast(msg, type = "success") {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => el.className = "", 3000);
+  }
+</script>
+
+</body>
+</html>

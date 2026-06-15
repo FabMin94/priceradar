@@ -2,6 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.alerts import router as alerts_router
 from app.api.v1.products import router as products_router
@@ -37,6 +39,12 @@ app = FastAPI(
 
 app.include_router(products_router, prefix="/api/v1")
 app.include_router(alerts_router, prefix="/api/v1")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/")
+def root():
+    return FileResponse("static/index.html")
 
 
 @app.get("/health")
